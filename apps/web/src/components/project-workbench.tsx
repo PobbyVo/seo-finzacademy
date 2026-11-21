@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { api, ApiError, type Project, type Topic } from "@/lib/api";
 
@@ -156,6 +157,7 @@ export function ProjectWorkbench() {
               <button className={`button ${selected ? "button-secondary" : "button-primary"} w-full`} type="submit" disabled={disabled || !name.trim()}><span aria-hidden="true">＋</span> Tạo dự án</button>
               <p>Chỉ tạo dự án trống. Chưa nhập taxonomy hoặc từ khóa.</p>
             </form>
+            <Link href="/settings/ai" className="button button-secondary w-full" style={{marginTop:16}}>Cài đặt</Link>
             <div className="storage-note"><span aria-hidden="true">◉</span><p>Dữ liệu lưu bằng SQLite.<br />Các dự án được lưu độc lập.</p></div>
           </aside>
 

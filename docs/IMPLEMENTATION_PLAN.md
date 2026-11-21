@@ -10,6 +10,14 @@
 - **Không:** Google auth, Semrush adapter API, WordPress, LLM live, file upload thật.
 - DoD: UI mở local, API health 200, chọn được project trống, tests green.
 
+## Milestone 0.25 — AI Provider Settings
+
+- Next.js `/settings/ai`, versioned Settings API, SQLite metadata + OS credential manager.
+- OpenAI Responses, Gemini Interactions, Claude Messages; model do người dùng nhập.
+- Save không gọi AI; Test Connection cần consent và chỉ gửi lời nhắc kiểm tra ngắn.
+- Shared gateway cho Analyst/Critic; không xây SEO engine, mapping hoặc brief.
+- Mock HTTP và secret store trong automated tests; không dùng credentials thật.
+
 ## Milestone 0.5 — Local Workbench UI + Workflow Observability (NEW V1.3)
 
 - Đọc `docs/UX_LOCAL_WORKBENCH_V1_3.md` và `docs/STATE_MACHINE_AND_EVENTS.md` trước khi triển khai.

@@ -49,8 +49,7 @@ def register_handlers(app):
             AppError(
                 422,
                 "VALIDATION_ERROR",
-                "Dữ liệu không hợp lệ. Tên dự án cần từ 1 đến 120 ký tự; "
-                "mã topic không được trống.",
+                "Dữ liệu không hợp lệ. Kiểm tra các trường bắt buộc và định dạng đã nhập.",
                 "Kiểm tra các trường được chỉ ra và gửi lại.",
                 fields,
             ),

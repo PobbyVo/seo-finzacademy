@@ -2,6 +2,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from finz_api import models  # noqa: F401
+from finz_api.ai import settings  # noqa: F401
 from finz_api.config import database_url
 from finz_api.db import Base
 

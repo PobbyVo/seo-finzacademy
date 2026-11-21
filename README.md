@@ -132,3 +132,36 @@ Nguồn quy tắc: [AGENTS.md](AGENTS.md), [SPEC_FULL.md](docs/SPEC_FULL.md), [I
 UI/workflow các milestone sau theo [UX_LOCAL_WORKBENCH_V1_3.md](docs/UX_LOCAL_WORKBENCH_V1_3.md), [STATE_MACHINE_AND_EVENTS.md](docs/STATE_MACHINE_AND_EVENTS.md), bổ sung source import [V1.4](docs/TOPIC_SOURCE_IMPORT_AND_DEMAND_MAP_V1_4.md) và nghiên cứu [V1.5](docs/V1_5_DB_AI_RESEARCH_LOOP.md). Prototype giữ nguyên, xem [prototype/README.md](prototype/README.md); không dùng khả năng của prototype để đánh giá M0 đã hoàn tất tính năng tương ứng.
 
 Bước được khuyến nghị tiếp theo là **M0.5 — Local Workbench UI**; chỉ thực hiện khi được yêu cầu.
+
+## M0.25 — AI Provider Settings
+
+Sau khi cập nhật source, cài dependencies và migrate:
+
+```sh
+services/api/.venv/bin/python -m pip install -c services/api/requirements-dev.lock -e './services/api[dev]'
+make migrate
+npm run dev
+```
+
+Mở http://127.0.0.1:3000/settings/ai hoặc chọn **Cài đặt** ở cuối sidebar. Chọn OpenAI, Google Gemini hoặc Anthropic Claude; nhập Model ID được cấp quyền trong tài khoản và API key. Bấm **Save Settings** (trạng thái NOT_TESTED), tick đồng ý gửi request rồi bấm **Test Connection**. Có thể phát sinh phí. Chỉ response kiểm tra hợp lệ mới chuyển CONNECTED với timestamp và latency. Test không gửi dự án, taxonomy, keyword hay file Semrush. Không tự retry hoặc đổi provider.
+
+Key chỉ truyền tới backend local và lưu qua `keyring` vào kho credentials của hệ điều hành. SQLite chỉ giữ provider, model, UUID secret reference và metadata kiểm tra. Không lưu key vào localStorage, DB, log hoặc Git. Khi mở lại trang chỉ trả `has_key`; để trống password field giữ key đã lưu. **Remove Key** xóa key và metadata của provider. Nếu không có credential manager phù hợp, trả SECRET_STORE_UNAVAILABLE, không lưu plaintext dự phòng. macOS có thể yêu cầu cho phép Python truy cập Keychain.
+
+Gateway dùng HTTP chuẩn với endpoint HTTPS cố định, không theo redirect, timeout 20 giây. Không cần ba SDK cho các request MVP. Dependencies mới: `keyring` cho kho secrets hệ điều hành và `jsonschema` để kiểm tra structured output. Lockfile đã cập nhật. Cả Analyst và Critic dùng cùng cấu hình qua `generate_for_task`; model riêng chưa có. M0 chưa có workflow Analyst/Critic chính thức: gateway sẵn sàng cho module đó sử dụng, không xây SEO pipeline trong Settings. Prototype giữ cấu hình độc lập hiện có.
+
+| Method | API | Hành vi |
+|---|---|---|
+| GET | `/api/v1/settings/ai` | Đọc metadata, không có key |
+| PUT | `/api/v1/settings/ai` | `{provider,model,api_key?}`; lưu không gọi provider |
+| POST | `/api/v1/settings/ai/test` | `{consent:true}`; kiểm tra cấu hình đã lưu |
+| DELETE | `/api/v1/settings/ai/{provider}` | Xóa key và metadata |
+
+Lỗi có `code`, `reason`, `impact`, `solution`, `next_action`. Chỉnh model/key hoặc Save chọn provider làm mất hiệu lực CONNECTED cũ. GET và thao tác trên dự án không tự gọi AI.
+
+API đã đối chiếu: [OpenAI Responses](https://developers.openai.com/api/reference/resources/responses/methods/create), [Gemini Interactions](https://aistudio.google.com/api-reference/interactions-api/create-interaction), [Claude Messages](https://platform.claude.com/docs/en/api/messages/create). Gemini dùng Interactions v1beta, header `Api-Revision: 2026-05-20`, với `steps/model_output/content`; Claude dùng version 2026-10-21. Gateway không quyết định approval hoặc READY_FOR_BRIEF.
+
+Kiểm thử: `make check`, `make build-web`, `npm --prefix e2e run typecheck`, `npm --prefix e2e test`. Backend dùng secret store và transport mock; browser Settings mock HTTP cho các thao tác secret. Tests không gọi AI thật hoặc ghi vào Keychain.
+
+Để buộc gateway không gửi bất kỳ request provider nào, đặt `AI_GATEWAY_MODE=mock` trong `.env` rồi khởi động lại backend. Settings hiển thị mock và vô hiệu hóa Test Connection; backend trả MOCK_MODE nếu gọi trực tiếp, không giả CONNECTED. Mặc định `live` vẫn chỉ gửi request sau thao tác và consent rõ ràng. `LLM_PROVIDER=mock` của scaffold nghiên cứu M0 được giữ riêng, không tự bật research engine.
+
+Chẩn đoán lỗi provider: UI hiển thị Request ID, HTTP ứng dụng, HTTP upstream và mã lỗi an toàn. Log xoay vòng tại `data/provider_diagnostics.jsonl` (gitignored); không chứa key, payload, raw error message hoặc dữ liệu dự án. Phân biệt HTTP 503 thực sự từ provider với NETWORK_ERROR (DNS/TLS/refused/reset) và CONNECTION_TIMEOUT, kể cả timeout nằm trong URLError. Xem [báo cáo Gemini](docs/AI_PROVIDER_DIAGNOSTICS.md) để tra Request ID và chạy regression tests.

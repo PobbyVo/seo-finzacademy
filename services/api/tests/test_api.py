@@ -204,7 +204,7 @@ def test_migrations_upgrade_idempotent_and_downgrade(db_url):
     engine = make_engine(db_url)
     with engine.connect() as connection:
         assert (
-            connection.scalar(text("SELECT version_num FROM alembic_version")) == "0001_m0_scaffold"
+            connection.scalar(text("SELECT version_num FROM alembic_version")) == "0002_ai_settings"
         )
     assert {"projects", "project_snapshots", "audit_events"} <= set(
         inspect(engine).get_table_names()

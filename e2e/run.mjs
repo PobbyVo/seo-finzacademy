@@ -105,6 +105,7 @@ try {
   const env = {
     ...process.env,
     LLM_PROVIDER: 'mock',
+    AI_GATEWAY_MODE: 'mock',
     DATABASE_URL: `sqlite:///${join(temporaryDirectory, 'e2e.sqlite3')}`,
     API_BASE_URL: apiURL,
     NEXT_DIST_DIR: '.next-e2e',

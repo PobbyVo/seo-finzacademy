@@ -67,3 +67,35 @@
 - Run: `services/api/.venv/bin/python prototype/server.py 5173`, mở http://127.0.0.1:5173. Cần `openpyxl` từ `prototype/requirements.txt`. `npm run dev` vẫn khởi động ứng dụng M0 riêng ở 3000/8000.
 - Limitations: không có parser/gate SERP được xác minh, không tạo brief hoặc kết luận SEO-ready. Không kiểm thử provider LLM thật khi chưa được cấu hình; test bao gồm AI chưa cấu hình và lỗi request. Chỉ metadata/snapshot kỹ thuật được hoàn thành; phê duyệt chất lượng SEO không được tự suy ra.
 - Missing inputs: không cần credentials. Không commit/push/deploy trong task này.
+
+## M0.25 — AI Provider Settings (2026-11-21)
+
+- Files: `services/api/finz_api/ai/{gateway,settings}.py`, package init, migration `0002_ai_settings`, API/error handling, pyproject/lockfile, tests; Next `/settings/ai`, sidebar link; e2e Settings/config; README/implementation plan/log.
+- Delivered: provider/model dùng chung cho Analyst/Critic; password key nhập backend, OS keyring, metadata/reference-only SQLite. Save/Get/Remove không gọi provider. Test Connection có consent, short prompt và JSON validation; trả CONNECTED chỉ khi response hợp lệ. Hiển thị status/model/test time/latency và lỗi tiếng Việt.
+- Gateway: ProviderConfig, AIProviderAdapter, AIProviderRegistry, test_connection, generate_structured_output và shared generate_for_task. HTTP adapters theo API riêng; endpoint cố định, không follow redirect, không retry/fallback. Gemini response đọc steps/model_output/content; Claude có version header riêng. Không tạo metrics, approval, mapping hoặc brief.
+- Dependencies: keyring (OS credential manager; không dùng plaintext fallback), jsonschema (validate JSON trước khi dùng); đã khóa phiên bản trong requirements-dev.lock. Không cần ba SDK cho các request MVP.
+- Security: không trả key hoặc raw provider error; validation errors không echo input. SecretStr/repr redaction, no-store responses, Origin allowlist, JSON-only mutation. Test payload không chứa dữ liệu dự án. Keychain không sẵn sàng thì fail closed với hướng khắc phục.
+- Tests: `cd services/api && .venv/bin/python -m pytest -q` — 49 passed; Ruff check PASS; frontend lint/typecheck PASS; `make build-web` PASS (5 static pages, có /settings/ai); `npm --prefix e2e run typecheck` PASS; `npm --prefix e2e test` — 4 passed (6.1s). Regression prototype — 11 passed. `make migrate` và `alembic check` PASS, không có schema change chưa migrate. Browser test ban đầu bắt nhầm alert của Next route announcer; đã scope vào main rồi chạy lại thành công.
+- Verification uses in-memory secrets + mocked HTTP/SDK-equivalent transport; browser Settings mutations use mocked API. Không có request provider thật hoặc key thật trong tests. Không ghi secret vào Keychain trong tests.
+- Run: cài backend dependencies theo README, `make migrate`, `npm run dev`, mở http://127.0.0.1:3000/settings/ai. Nhập key/model, Save, consent, Test; dùng Remove Key để xóa.
+- Missing inputs: cần key/model có quyền để kiểm tra kết nối thật; không cần cho automated tests.
+- Limitations: chưa kiểm thử live provider/OS keychain end-to-end với credentials thật; model riêng từng task chưa có. Production M0 chưa có workflow Analyst/Critic: gateway entrypoint đã sẵn sàng, không triển khai research engine trong milestone này. Prototype không bị thay đổi bởi M0.25.
+- Next milestone: M0.5 — chuyển Workbench UI sang Next.js. Không commit/push/deploy trong task này.
+
+- M0.25 bổ sung AI_GATEWAY_MODE=mock: không gọi transport, không giả CONNECTED; browser runner ép mock để tránh outbound ngoài ý muốn. Unit test kiểm tra transport không được gọi. Backend live chỉ gửi request sau consent. OS backend nhận diện trên máy: keyring.backends.macOS; chưa ghi/thử key thật. API metadata và trang Settings trên 3000/8000 trả HTTP 200. `pip check` không có dependency bị lỗi.
+
+## M0.25 — Gemini request compatibility follow-up (2026-11-21)
+
+- Added `Api-Revision: 2026-05-20` to the Gemini Interactions adapter to match the user's supplied request; model still comes from Settings and store remains false. Response parser remains steps/model_output/content.
+- Regression: provider/settings suite 28 passed; Ruff and git diff --check PASS. Test asserts exact Gemini endpoint, auth/revision headers, chosen model and payload. No credential in source/tests/log.
+- User-authorized live check: saved the supplied Gemini credential through the local Settings API into OS Keychain, then attempted Test Connection once. Save HTTP 200; test HTTP 504 / CONNECTION_TIMEOUT after the configured timeout. Connection is not marked CONNECTED; key/model validity remains unverified. No project or Semrush data sent.
+
+## M0.25 — Gemini PROVIDER_UNAVAILABLE diagnosis (2026-11-21)
+
+- Traced frontend Settings → Next proxy → versioned FastAPI Test endpoint → SQLite metadata/OS Keychain → Registry → Gemini fixed HTTPS POST. Request construction and timeout unchanged because no proven payload/credential retrieval bug was found.
+- Original request ID 521d0a80-ec52-4e0d-a8ae-7d304729d2f5 has no correlated historical upstream log. New diagnostic request fba81e90-302a-4c20-a604-15b66fe141a2 reproduced upstream HTTP 503 / service_unavailable in 1194 ms; application now returns 503 and preserves upstream evidence. Project/snapshot/audit hashes unchanged.
+- Fixed HTTP 400/503 status loss, wrapped-timeout misclassification and generic network/provider error conflation. Added safe structured diagnostics, request-context correlation and private rotating local log. Raw exception, headers, key, payload and raw provider messages never logged. UI shows correlation ID/upstream fields and retains original test error if metadata refresh fails.
+- Files: `services/api/finz_api/ai/{gateway,diagnostics}.py`, `main.py`, new `tests/test_ai_diagnostics.py`, existing settings tests; `/settings/ai` error presentation, e2e settings test; diagnosis document and development log. No changes to credential storage, migrations or project logic.
+- Verification: 66 backend tests PASS; Ruff PASS; frontend lint/typecheck/build PASS. Browser/typecheck final results recorded below after completion. Tests include status 400/401/403/404/429/503/504, DNS/TLS/refused/reset, wrapped timeout, local/upstream ID correlation and secret-echo redaction. Exactly one live diagnostic test, no project content submitted.
+- Full evidence, classification and reproduction: `docs/AI_PROVIDER_DIAGNOSTICS.md`.
+- Final browser regression: 5 passed (6.6s); e2e TypeScript PASS. `git diff --check` PASS. The new test confirms that a failing metadata refresh cannot hide the original upstream status/code/Request ID.
