@@ -48,20 +48,20 @@ Mở `http://127.0.0.1:5173`. Đóng Terminal bằng `Ctrl+C` để dừng serve
 6. Kiểm tra các cột tự nhận diện: `Keyword`, `Search Volume`, `KD %`, `Intent`.
 7. Bấm `Xác nhận nhập dữ liệu` để cập nhật trạng thái Request.
 8. Trong `Kiểm tra dữ liệu`, bấm `Chạy kiểm tra file` để xem số dòng mẫu, thiếu Volume/KD.
-9. Mở `Nhập SERP thủ công` và thêm một URL đã quan sát **thực tế** nếu có, hoặc bỏ qua nếu chỉ thử demo.
+9. Mở `Kế hoạch bài viết` để xem dự thảo với nhãn `SERP_NOT_VERIFIED`; không phải nhập URL thủ công.
 10. Về `Tổng quan` kiểm tra trạng thái mới, nhật ký, blockers; `Xuất báo cáo trạng thái JSON` để xem trạng thái có thể lưu.
 
 ## Cái gì THẬT trong prototype?
 
-- Các nút điều hướng, form, thêm nhóm, tạo phiếu, hướng dẫn Semrush, đọc CSV/XLSX bằng Python local, mapping cột, confirm import, kiểm tra completeness mẫu, nhập kết quả SERP thủ công, quyết định approval demo, nhật ký và JSON export.
-- Trạng thái giao diện lưu trong **localStorage của trình duyệt** (không phải SQLite). File gốc không lưu bền vững. Dữ liệu chưa xác nhận mất khi reload: cần upload lại.
+- Các nút điều hướng, form, thêm nhóm, tạo phiếu, hướng dẫn Semrush, đọc CSV/XLSX bằng Python local, mapping cột, confirm import, kiểm tra completeness mẫu,  quyết định approval demo, nhật ký và JSON export.
+- Khi chạy server, trạng thái và raw file đã upload lưu trong SQLite/thư mục local; localStorage chỉ là bản nháp dự phòng. Dữ liệu chưa xác nhận mất khi reload: cần upload lại.
 - Không dùng API key, Google Sheets, WordPress hoặc Semrush MCP.
 
 ## Cái gì CHƯA CÓ?
 
 - Phân tích AI thật, crawl SERP tự động, đánh giá keyword và dạng trang SEO thực sự, lưu toàn bộ file và bằng chứng, chọn nhiều sheet trong một XLSX **đối với Semrush**, Content Brief chính thức, xuất XLSX plan/brief, backup DB, worker SSE. `Content Brief` bị khóa trong demo là **cố ý**.
 - CSV fallback hoạt động khi mở HTML trực tiếp, nhưng XLSX chỉ đọc khi chạy `server.py` cùng `openpyxl`.
-- Parser prototype chỉ lấy tối đa **3000 dòng đầu để quét, 200 dòng giữ cho giao diện**. Sản phẩm chính thức phải xử lý đầy đủ file, kiểm tra SHA-256 và lưu immutable raw evidence trong SQLite.
+- Import xác nhận đọc tối đa **25.000 dòng**, giao diện preview giữ tối đa 200 dòng. Sản phẩm chính thức phải xử lý đầy đủ file, kiểm tra SHA-256 và lưu immutable raw evidence trong SQLite.
 
 ## An toàn dữ liệu
 
@@ -82,3 +82,25 @@ Topic import parser hoạt động trên server Python local (`topic_source_impo
 ## V1.5 extension
 
 The prototype now has SQLite persistence and optional live LLM Analyst/Critic endpoints. Use the Python server (not file://) for the SQLite functions. `persistent_store.py` holds project/workflow state and full imported Semrush rows; `evidence_engine.py` checks data quality and missing seed metrics; `ai_demand_engine.py` sends requests only to a user-configured OpenAI-compatible model endpoint. Read `../docs/V1_5_DB_AI_RESEARCH_LOOP.md` for the manual research loop, safety and limits. The system does not connect to Semrush/Google Sheets/WordPress APIs or MCP.
+
+## Workflow UX & Validation Feedback (21/11/2026)
+
+Bảy bước nghiên cứu; Chờ phê duyệt độc lập. Lưu SQLite thành công mới có popup PROCESS_COMPLETED; thiếu bằng chứng không thành QUALITY_APPROVED. Nút Ở lại/Escape hủy timer, đổi trang/dự án hủy popup. File preview chưa confirm không kích hoạt thành công import. Card lỗi nêu nguyên nhân, ảnh hưởng, giải pháp và CTA. Không xác minh intent/SERP hay tạo brief mới.
+
+Chạy từ root (dùng Python 3.12 đã cài dependencies M0, thêm openpyxl nếu chưa có):
+
+```sh
+services/api/.venv/bin/python -m pip install -r prototype/requirements.txt
+services/api/.venv/bin/python prototype/server.py 5173
+```
+
+Mở http://127.0.0.1:5173. `npm run dev` ở root vẫn chạy scaffold Next.js/FastAPI M0 tại 3000/8000; bản nâng cấp này ở Workbench V1.5.
+
+Kiểm thử:
+
+```sh
+PYTHONPATH=prototype services/api/.venv/bin/python -m pytest prototype/tests/test_v15_backend.py prototype/tests/test_topic_source_import.py prototype/tests/test_workflow_feedback.py -q
+npm --prefix e2e exec -- playwright test --config e2e/prototype.config.ts
+```
+
+Browser suite tự mở server 5193 với SQLite tạm, tắt AI, không sử dụng DB người dùng. Mặc định dùng Chrome đã cài; đặt PLAYWRIGHT_CHANNEL để chọn browser khác.

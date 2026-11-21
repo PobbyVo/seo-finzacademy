@@ -1,5 +1,8 @@
 # FinZ SEO Workbench V1.5 — SQLite + AI Demand Intelligence + Manual Semrush Loop
 
+> Cập nhật UX 21/11/2026: luồng chính gồm 7 bước: Thiết lập → Bản đồ nhu cầu → Yêu cầu Semrush → Upload/ghép cột → Kiểm tra dữ liệu → Kế hoạch dự thảo → Brief/xuất (đang khóa). Chờ phê duyệt là màn hình kiểm soát riêng. Không còn route nhập SERP thủ công; tham chiếu cũ bên dưới chỉ mô tả lịch sử. Dữ liệu SERP cũ được giữ trong SQLite, không suy thành SERP đã xác minh.
+> Trạng thái kỹ thuật `PROCESS_COMPLETED` chỉ sau xác nhận SQLite; không đồng nghĩa `QUALITY_APPROVED`. Thiếu SERP hiển thị `SERP_NOT_VERIFIED`, được xem dự thảo nhưng không READY_FOR_BRIEF. Popup tự chuyển sau 2 giây chỉ khi navigationEligible, không có preview, approval pending hoặc Critic yêu cầu nghiên cứu lại. Đổi trang/dự án, đóng hoặc ở lại hủy timer.
+
 ## Trạng thái implementation
 
 **Đã thực thi bằng mã trong `prototype/`:** lưu/load/list nhiều dự án bằng SQLite, lưu file Semrush gốc và toàn bộ dòng chuẩn hóa (giới hạn 25.000 dòng/file), đếm dòng thiếu dữ liệu, kiểm tra keyword gốc có metric hay chưa từ toàn bộ evidence DB, API chạy AI phân tích nhu cầu và vòng phản biện AI **khi một LLM Provider được cấu hình**, và UI gọi các endpoint tương ứng. Đã kiểm thử unit + HTTP backend với nguồn mẫu.

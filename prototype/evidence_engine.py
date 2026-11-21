@@ -146,7 +146,7 @@ def infer_research_gaps(evidence: dict, topic_seeds: list[str]) -> dict:
             summaries.append({'keyword':keyword,'status':'RESEARCH_REQUIRED','reason':'Thiếu hoặc mơ hồ Volume/KD/Intent',
                               'reports':['KEYWORD_OVERVIEW']})
         else:
-            summaries.append({'keyword':keyword,'status':'SERP_REQUIRED','reason':'Đã có metrics nhưng chưa xác minh dạng trang và khả năng tách/gộp qua SERP',
+            summaries.append({'keyword':keyword,'status':'SERP_NOT_VERIFIED','reason':'Đã có metrics nhưng chưa xác minh dạng trang và khả năng tách/gộp qua SERP',
                               'reports':['ORGANIC_RESULTS']})
     return {'seeds':summaries, 'ready_for_brief':False,
-            'explanation':'Không thể chứng minh đủ điều kiện SEO bằng metrics alone; bắt buộc bước SERP, scope và human approval.'}
+            'explanation':'Không thể chứng minh đủ điều kiện SEO bằng metrics alone; thiếu xác minh SERP, scope và human approval thì kế hoạch chỉ là dự thảo.'}

@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Local UI preview server for FinZ SEO Workbench (NOT the product backend).
 
-Binds 127.0.0.1, receives CSV/XLSX in memory for preview, never calls external APIs.
-Requires openpyxl only for XLSX. Does not save uploaded binary files to disk.
+Binds 127.0.0.1 and persists raw uploads/evidence in local SQLite storage.
+Requires openpyxl for XLSX. Optional AI runs only with an explicitly configured provider.
 """
 import csv
 import hashlib
 import uuid
+import sqlite3
 import io
 import json
 import os
@@ -114,6 +115,19 @@ def rows_to_result(headers, rows, sheet_name, warnings):
     return dict(headers=headers, rows=objs, totalRows=len(rows), sheetUsed=sheet_name, warnings=warnings)
 
 
+def error_feedback(route, exc):
+    code = ('DB_SAVE_FAILED' if route == '/api/projects/save' or isinstance(exc, sqlite3.Error)
+            else 'COLUMN_MAPPING_INVALID' if route == '/api/import-confirm'
+            else 'AI_NOT_CONFIGURED' if route.startswith('/api/ai/') and not provider_config()['ready']
+            else 'LLM_REQUEST_FAILED' if route.startswith('/api/ai/') else 'UNSUPPORTED_FILE')
+    return {'code': code, 'severity': 'ERROR', 'title': 'Thao tác chưa hoàn tất',
+            'reason': str(exc) if isinstance(exc, ValueError) else 'Server chưa xác nhận kết quả.',
+            'impact': 'Không thể chuyển bước hoặc xác nhận chất lượng từ thao tác này.',
+            'solution': 'Kiểm tra trường dữ liệu và thử lại tác vụ.',
+            'next_action': {'label': 'Thử lại', 'target': 'setup' if code == 'DB_SAVE_FAILED' else 'upload'},
+            'blocking': True, 'source_ref': None}
+
+
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(ROOT), **kwargs)
@@ -168,11 +182,11 @@ class Handler(SimpleHTTPRequestHandler):
             if route in ('/api/import-preview', '/api/topic-source-preview'):
                 length = int(self.headers.get('Content-Length', '0'))
                 if length < 1 or length > MAX_FILE:
-                    return self.respond(413, {'error': 'File phải từ 1 byte đến 5 MB.'})
+                    return self.respond(413, {'error': 'File phải từ 1 byte đến 5 MB.', 'feedback': error_feedback(route, ValueError('Chọn file từ 1 byte đến 5 MB.'))})
                 fname = os.path.basename(unquote(self.headers.get('X-File-Name', 'unknown')))
                 ext = pathlib.Path(fname).suffix.lower()
                 if ext not in ('.csv', '.xlsx'):
-                    return self.respond(415, {'error': 'Chỉ hỗ trợ CSV hoặc XLSX.'})
+                    return self.respond(415, {'error': 'Chỉ hỗ trợ CSV hoặc XLSX.', 'feedback': error_feedback(route, ValueError('Chọn file CSV/XLSX.'))})
                 payload = self.rfile.read(length)
                 result = (parse_topic_source(payload, fname) if route == '/api/topic-source-preview'
                           else (parse_csv(payload) if ext == '.csv' else parse_xlsx(payload)))
@@ -205,6 +219,7 @@ class Handler(SimpleHTTPRequestHandler):
                 batch_id = store.store_batch(str(inp.get('projectId') or ''), str(inp.get('requestId') or ''), uploaded['id'],
                                               rep, locale, mapping, stats, normalized)
                 return self.respond(200, {'batchId':batch_id,'stats':stats,'fullRowCount':len(rows),
+                                          'completion': {'type':'PROCESS_COMPLETED','storage':'sqlite'},
                                           'note':'Dữ liệu raw đã lưu SQLite; status không đồng nghĩa SEO-ready.'})
             if route in ('/api/ai/topic', '/api/ai/critic', '/api/research/gaps'):
                 inp = self.json_body()
@@ -228,10 +243,10 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.respond(200,out)
             return self.respond(404, {'error':'Route không tồn tại.'})
         except (ValueError, json.JSONDecodeError) as exc:
-            return self.respond(422, {'error': str(exc)})
+            return self.respond(422, {'error': str(exc), 'feedback': error_feedback(route, exc)})
         except Exception as exc:
             self.log_message('Request error: %s', str(exc))
-            return self.respond(500, {'error':'Lỗi server local. Xem Terminal; không có dữ liệu bị tự thay thế.'})
+            return self.respond(500, {'error':'Lỗi server local. Kiểm tra server và thử lại; chưa xác nhận hoàn thành.', 'feedback':error_feedback(route, exc)})
 
 
 if __name__ == '__main__':

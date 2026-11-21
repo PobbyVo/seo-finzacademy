@@ -1,5 +1,8 @@
 # WORKFLOW STATE MACHINE & OBSERVABILITY CONTRACT — V1.3
 
+> Cập nhật UX 21/11/2026: luồng chính gồm 7 bước: Thiết lập → Bản đồ nhu cầu → Yêu cầu Semrush → Upload/ghép cột → Kiểm tra dữ liệu → Kế hoạch dự thảo → Brief/xuất (đang khóa). Chờ phê duyệt là màn hình kiểm soát riêng. Không còn route nhập SERP thủ công; tham chiếu cũ bên dưới chỉ mô tả lịch sử. Dữ liệu SERP cũ được giữ trong SQLite, không suy thành SERP đã xác minh.
+> Trạng thái kỹ thuật `PROCESS_COMPLETED` chỉ sau xác nhận SQLite; không đồng nghĩa `QUALITY_APPROVED`. Thiếu SERP hiển thị `SERP_NOT_VERIFIED`, được xem dự thảo nhưng không READY_FOR_BRIEF. Popup tự chuyển sau 2 giây chỉ khi navigationEligible, không có preview, approval pending hoặc Critic yêu cầu nghiên cứu lại. Đổi trang/dự án, đóng hoặc ở lại hủy timer.
+
 ## 1. Ba lớp trạng thái phải tách rời
 
 1. `WorkflowStep` — công việc ở bước này là chưa bắt đầu, đang chạy, chờ người dùng, chờ review, bị chặn, hoàn thành hay lỗi.

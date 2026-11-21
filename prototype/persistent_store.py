@@ -6,13 +6,14 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import os
 import pathlib
 import sqlite3
 import threading
 import uuid
 from typing import Any
 
-DATABASE_DIR = pathlib.Path(__file__).resolve().parent.parent / '.finz_local_data'
+DATABASE_DIR = pathlib.Path(os.environ.get('FINZ_PROTOTYPE_DATA_DIR') or pathlib.Path(__file__).resolve().parent.parent / '.finz_local_data')
 DB_FILE = DATABASE_DIR / 'seo_workbench.sqlite3'
 LOCK = threading.RLock()
 
@@ -65,6 +66,11 @@ def init_db() -> None:
 
 
 def store_project(state: dict[str, Any]) -> dict:
+    with LOCK:
+        return _store_project(state)
+
+
+def _store_project(state: dict[str, Any]) -> dict:
     project = state.get('project')
     if not isinstance(project, dict):
         raise ValueError('Chưa có project để lưu SQLite.')
@@ -75,6 +81,15 @@ def store_project(state: dict[str, Any]) -> dict:
     code = str(project.get('topicCode') or '').strip()
     if not name or not code:
         raise ValueError('Thiếu tên dự án hoặc Topic Pillar.')
+    # Legacy SERP records remain historical even when the new UI omits that screen.
+    previous = load_project(project_id)
+    if previous and previous.get('serp'):
+        state = dict(state)
+        historical = list(previous['serp'])
+        for item in state.get('serp') or []:
+            if item not in historical:
+                historical.append(item)
+        state['serp'] = historical
     payload = json.dumps(state, ensure_ascii=False, separators=(',', ':'))
     if len(payload.encode('utf-8')) > 3_000_000:
         raise ValueError('Dữ liệu trạng thái quá lớn. Upload số liệu bằng form Semrush.')
@@ -90,7 +105,7 @@ def store_project(state: dict[str, Any]) -> dict:
                        (project_id, name, code, payload, now, now, revision))
         db.execute('INSERT INTO project_events(project_id,action,details_json,at) VALUES (?,?,?,?)',
                    (project_id, 'STATE_SAVED', json.dumps({'revision': revision}), now))
-    return {'id': project_id, 'revision': revision, 'saved_at': now, 'storage': 'sqlite'}
+    return {'id': project_id, 'revision': revision, 'saved_at': now, 'storage': 'sqlite', 'completion': {'type': 'PROCESS_COMPLETED', 'storage': 'sqlite'}}
 
 
 def list_projects() -> list[dict]:
