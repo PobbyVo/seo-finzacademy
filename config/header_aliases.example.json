@@ -1,0 +1,13 @@
+{
+  "keyword": ["Keyword", "Key", "Search Term", "Từ khóa"],
+  "volume": ["Volume", "Search Volume", "Volume/month", "Lượng tìm kiếm"],
+  "kd": ["KD %", "KD", "Keyword Difficulty", "Difficulty"],
+  "intent": ["Intent", "Search Intent", "Intents"],
+  "serp_features": ["SERP Features", "Features"],
+  "trend": ["Trend", "12 Month Trend"],
+  "cpc": ["CPC", "CPC (USD)"],
+  "position": ["Position", "Pos.", "Rank"],
+  "url": ["URL", "Page URL", "Landing Page"],
+  "title": ["Title", "Page title"],
+  "snippet": ["Snippet", "Description"]
+}

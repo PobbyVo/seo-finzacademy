@@ -1,0 +1,16 @@
+{
+  "name": "finz-m0-browser-tests",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "test": "node run.mjs",
+    "test:external": "playwright test",
+    "test:chrome": "node run.mjs --chrome",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "@types/node": "24.10.0",
+    "typescript": "5.9.3"
+  }
+}

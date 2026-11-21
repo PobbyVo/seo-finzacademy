@@ -1,0 +1,13 @@
+{
+  "fixture_type": "DEMO_ONLY",
+  "note": "Expected classifications are illustrative acceptance tests bound to the included taxonomy. They are NOT a universal keyword-to-topic dictionary.",
+  "cases": [
+    {"project_topic": "P01", "keyword": "cách tính thuế TNCN từ lương", "expected_scope": "NEW_WITHIN_TOPIC", "expected_reason": "P01 main_topics explicitly includes thuế TNCN từ lương"},
+    {"project_topic": "P01", "keyword": "thuế thu nhập freelancer", "expected_scope": "CROSS_TOPIC", "expected_owner": "P02"},
+    {"project_topic": "P01", "keyword": "rút bảo hiểm xã hội một lần", "expected_scope": "CROSS_TOPIC", "expected_owner": "P25"},
+    {"project_topic": "P01", "keyword": "cách tính bảo hiểm trừ vào lương", "expected_scope": "UNCERTAIN", "expected_action": "MANUAL_REVIEW_CROSS_TOPIC"},
+    {"project_topic": "P01", "keyword": "lương gross net là gì", "expected_scope": "CORE_APPROVED"},
+    {"project_topic": "P08", "keyword": "lập quỹ khẩn cấp", "expected_scope": "NEW_WITHIN_TOPIC"},
+    {"project_topic": "P25", "keyword": "điều kiện hưởng bảo hiểm xã hội", "expected_scope": "NEW_WITHIN_TOPIC"}
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "fixture_type": "DEMO_ONLY",
+  "topics": [
+    {"topic_code": "P01", "topic_name": "Lương", "pillar": "1. KIẾM TIỀN", "topic_type": "Theo thứ cụ thể", "pillar_axis": "Theo nguồn thu nhập", "main_topics": ["Lương & tăng lương", "Deal lương", "Gross/net", "Thuế TNCN từ lương"]},
+    {"topic_code": "P02", "topic_name": "Thu nhập phụ & freelance", "pillar": "1. KIẾM TIỀN", "topic_type": "Theo thứ cụ thể", "pillar_axis": "Theo nguồn thu nhập", "main_topics": ["Việc làm thêm", "Freelance", "Thuế thu nhập freelance"]},
+    {"topic_code": "P08", "topic_name": "Tiết kiệm & mục tiêu", "pillar": "3. GIỮ TIỀN", "topic_type": "Nền tảng", "pillar_axis": "Theo nơi để tiền", "main_topics": ["Quỹ khẩn cấp", "Tiết kiệm hằng tháng", "Lãi kép", "Mục tiêu tài chính"]},
+    {"topic_code": "P25", "topic_name": "Biến cố & bảo hiểm", "pillar": "6. BẢO VỆ TIỀN", "topic_type": "Theo thứ cụ thể", "pillar_axis": "Theo loại rủi ro", "main_topics": ["Bảo hiểm sức khỏe & nhân thọ", "BHXH", "BHYT"]}
+  ],
+  "content_codes": [
+    {"topic_code": "P01", "content_code": "P01.1-①", "content_topic": "Phiếu lương & lương thực nhận", "original_title": "Lương gross và net là gì, vì sao lương thực nhận thấp hơn trên hợp đồng"},
+    {"topic_code": "P01", "content_code": "P01.2-②", "content_topic": "Tăng lương & nhảy việc", "original_title": "Deal lương: nói con số nào, vào lúc nào"}
+  ],
+  "source_keywords": [
+    {"topic_code": "P01", "content_code": "P01.1-①", "keyword": "lương gross net là gì", "role": "Chính", "funnel": "TOFU"},
+    {"topic_code": "P01", "content_code": "P01.1-①", "keyword": "cách đọc phiếu lương", "role": "Phụ", "funnel": "MOFU"},
+    {"topic_code": "P01", "content_code": "P01.2-②", "keyword": "cách deal lương", "role": "Chính", "funnel": "BOFU"}
+  ]
+}

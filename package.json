@@ -1,0 +1,9 @@
+{
+  "name": "finz-seo-assistant",
+  "version": "0.0.1",
+  "private": true,
+  "engines": { "node": ">=20.9.0" },
+  "scripts": {
+    "dev": "node scripts/dev.mjs"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "is_real_semrush_report": false,
+  "purpose": "Test CSV delimiter, header mapping, vi-VN thousands parsing, missing vs zero, and source provenance",
+  "data_source": "DEMO_FIXTURE_NOT_LIVE",
+  "report_category": "KEYWORD_OVERVIEW",
+  "geo": "VN",
+  "number_locale": "vi-VN",
+  "delimiter": ";"
+}

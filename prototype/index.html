@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SEO Workbench | Local Workflow Prototype</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Điều hướng chính">
+      <div class="brand"><div class="brand-mark">F</div><div><strong>SEO Workbench</strong><span>LOCAL RESEARCH STUDIO</span></div></div>
+      <div class="workspace-label">KHÔNG GIAN LÀM VIỆC</div>
+      <button class="project-selector" id="projectSelector" type="button" title="Mở thiết lập dự án"><span class="project-icon">▦</span><span class="project-selector-text"><strong id="sideProjectName">Chưa có dự án</strong><small id="sideProjectDetail">Chọn hoặc tạo dự án</small></span><span>⌄</span></button>
+      <nav class="nav-list" id="sideNav" aria-label="Các bước nghiên cứu"></nav>
+      <div class="side-bottom"><div class="local-indicator"><span class="status-dot"></span> Chạy trên máy của bạn</div><div class="side-note">Không kết nối Google Sheets, Semrush API/MCP hoặc WordPress.</div><button class="side-reset" id="resetDemo" type="button">Đặt lại dữ liệu giao diện</button></div>
+    </aside>
+    <div class="app-main">
+      <header class="topbar"><div class="topbar-path">SEO Workbench <span>/</span> <strong id="topbarPage">Tổng quan</strong></div><div class="topbar-actions"><span class="environment-pill" id="environmentTag">● DEMO / LOCAL</span><span class="save-indicator" id="saveIndicator">Đã lưu trên trình duyệt</span><button class="button ghost small" id="headerHelp" type="button">? Hướng dẫn</button></div></header>
+      <div id="operationBanner" class="operation-banner hidden" role="status" aria-live="polite"><span class="busy-spinner" aria-hidden="true"></span><span><strong id="operationTitle">Đang xử lý</strong><small id="operationDetail">Vui lòng kiểm tra bước hiện tại</small></span></div><main class="page-content"><div class="page-head"><div><p class="eyebrow" id="pageEyebrow">WORKFLOW OBSERVABILITY</p><h1 id="pageTitle">Trung tâm điều hành nghiên cứu SEO</h1><p class="page-subtitle" id="pageSubtitle">Theo dõi trạng thái từng bước và biết chính xác bạn cần làm gì tiếp theo.</p></div><div class="header-page-action" id="pageAction"></div></div><div id="pageBody"></div></main>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <input type="file" id="globalFile" accept=".csv,.xlsx" hidden />
+    <input type="file" id="topicSourceFile" accept=".xlsx,.csv" hidden />
+  </div>
+  <script src="./app.js" defer></script>
+</body>
+</html>

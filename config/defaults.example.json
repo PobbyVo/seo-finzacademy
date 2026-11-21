@@ -1,0 +1,70 @@
+{
+  "version": "1.3",
+  "locale": "vi-VN",
+  "market": "VN",
+  "language": "vi",
+  "research_mode_default": "TOPIC_PILLAR",
+  "article_target": {
+    "min": 5,
+    "max": 7,
+    "hard_quota": false
+  },
+  "allowed_content_types": [
+    "ARTICLE"
+  ],
+  "expansion": {
+    "max_rounds": 2,
+    "max_seed_suggestions_per_round": 8
+  },
+  "semrush": {
+    "mode": "MANUAL_FILE_UPLOAD_ONLY",
+    "allowed_extensions": [
+      ".csv",
+      ".xlsx"
+    ],
+    "max_upload_mb": 20,
+    "header_mapping_required": true,
+    "allow_unknown_metrics": true
+  },
+  "serp": {
+    "mode": "MANUAL_FORM_OR_FILE",
+    "require_evidence_for_official_brief": true
+  },
+  "output": {
+    "mode": "LOCAL_FILE_ONLY",
+    "formats": [
+      "xlsx",
+      "csv",
+      "json",
+      "html_print"
+    ],
+    "logical_tables": [
+      "KEYWORD_OVERVIEW",
+      "KEYWORD_MAPPING",
+      "CONTENT_BRIEF"
+    ]
+  },
+  "llm": {
+    "provider": "mock",
+    "external_transfer_requires_opt_in": true
+  },
+  "cms": {
+    "mode": "NONE"
+  },
+  "google_sheets": {
+    "mode": "NONE"
+  },
+  "mcp": {
+    "required": false
+  },
+  "ui": {
+    "mode": "LOCAL_WORKBENCH",
+    "primary_screen": "WORKFLOW_DASHBOARD",
+    "step_count": 8,
+    "one_primary_next_action": true,
+    "show_running_only_when_worker_active": true,
+    "allow_unknown_progress": true,
+    "activity_journal": true,
+    "manual_semrush_request_center": true
+  }
+}
